@@ -13,22 +13,14 @@ class StationManager(models.Manager):
         return self.create(lng_dgr=lng, ltd_dgr=ltd)
 
     def find_points(self, ltd_dgr, lng_dgr):
-        print ltd_dgr
         earth_radius = 6371
         angular_radius = float(self.model.action_radius) / earth_radius
-        print angular_radius
 
         ltd_rad = math.radians(ltd_dgr)
         lng_rad = math.radians(lng_dgr)
 
         ltd_range = (ltd_rad - angular_radius, ltd_rad + angular_radius)
-        print ltd_range
 
-        a = math.sin(angular_radius)
-        b = math.cos(ltd_rad)
-        c = a / b
-        print 'arcsin ', c
-        # print math.asin(a / b)
         delta_lng = math.asin(math.sin(angular_radius) / math.cos(ltd_rad))
         lng_range = (lng_rad - delta_lng, lng_rad + delta_lng)
 
