@@ -1,0 +1,7 @@
+*.pyc
+*.pyc*
+*.swp
+flystation/static/vendor/*
+flystation/static/node_modules/*
+venv/*
+flystation/.idea/*

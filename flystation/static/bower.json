@@ -1,0 +1,18 @@
+{
+  "name": "Fly Station Project",
+  "version": "0.0.1",
+  "description": "fly station project",
+  "keywords": [
+    "flystation"
+  ],
+  "authors": [
+    "Istergul"
+  ],
+  "license": "Proprietary Software",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "latest",
+    "jquery": "latest"
+  }
+}
