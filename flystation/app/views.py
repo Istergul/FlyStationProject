@@ -26,7 +26,12 @@ def check_point(request):
     form = PointForm(request.GET)
     if form.is_valid():
         data = form.cleaned_data
-        res = Station.objects.check_point(data["latitude"], data["longitude"])
-        return HttpResponse(json.dumps({"result": res}), content_type="application/json")
+        points = Station.objects.find_points(data["latitude"], data["longitude"])
+        points_json = [p.to_json() for p in points]
+        res = {
+            "result": bool(points_json),
+            "points": points_json,
+        }
+        return HttpResponse(json.dumps(res), content_type="application/json")
     else:
         return HttpResponseBadRequest(json.dumps(form.errors), content_type="application/json")

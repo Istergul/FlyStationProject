@@ -9,14 +9,15 @@ function getRandomInRange(from, to, fixed) {
 $(document).ready(function() {
 
     $('#randomBtn').on("click", function(e) {
-        var rndLtd = getRandomInRange(-90, 90, 2),
-            rndLng = getRandomInRange(-180, 180, 2);
+        var rndLtd = getRandomInRange(-90, 90, 4),
+            rndLng = getRandomInRange(-180, 180, 4);
 
         $('#pointForm input').parent().removeClass('has-error');
         $('#id_latitude').val(rndLtd);
         $('#id_longitude').val(rndLng);
         $('#checkError').hide();
         $('#checkSuccess').hide();
+        $('#lstStat').hide();
     });
 
     var checkRequestLock = false;
@@ -36,9 +37,18 @@ $(document).ready(function() {
                 if (data.result) {
                     $('#checkSuccess').show();
                     $('#checkError').hide();
+                    var stations = "";
+                    var el;
+                    for (var i=0; i < data.points.length; i++) {
+                        el = data.points[i];
+                        stations += "<li>"+el.id+" - (ltd: "+el.ltd_dgr+", lng: "+el.lng_dgr+")"+"</li>"
+                    }
+                    $('#stationList').html(stations);
+                    $('#lstStat').show();
                 } else {
                     $('#checkSuccess').hide();
                     $('#checkError').show();
+                    $('#lstStat').hide();
                 }
             }).fail(function(xhr) {
                 var k;

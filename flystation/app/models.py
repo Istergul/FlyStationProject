@@ -1,33 +1,60 @@
 import random
+import math
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
-from app.utils import distance_on_unit_sphere_kilometers
 
 
 class StationManager(models.Manager):
 
     def create_random_station(self):
-        lng = random.randrange(-18000, 18000) / 100.0
-        ltd = random.randrange(-9000, 9000) / 100.0
-        return self.create(longitude=lng, latitude=ltd)
+        lng = random.randrange(-1800000, 1800000) / 10000.0
+        ltd = random.randrange(-900000, 900000) / 10000.0
+        return self.create(lng_dgr=lng, ltd_dgr=ltd)
 
-    def check_point(self, ltd, lng):
-        res = False
-        for s in self.all():
-            d = distance_on_unit_sphere_kilometers(ltd, lng, s.latitude, s.longitude)
-            if d <= self.model.action_radius:
-                res = True
-                continue
-        return res
+    def find_points(self, ltd_dgr, lng_dgr):
+        print ltd_dgr
+        earth_radius = 6371
+        angular_radius = float(self.model.action_radius) / earth_radius
+        print angular_radius
+
+        ltd_rad = math.radians(ltd_dgr)
+        lng_rad = math.radians(lng_dgr)
+
+        ltd_range = (ltd_rad - angular_radius, ltd_rad + angular_radius)
+        print ltd_range
+
+        a = math.sin(angular_radius)
+        b = math.cos(ltd_rad)
+        c = a / b
+        print 'arcsin ', c
+        # print math.asin(a / b)
+        delta_lng = math.asin(math.sin(angular_radius) / math.cos(ltd_rad))
+        lng_range = (lng_rad - delta_lng, lng_rad + delta_lng)
+
+        fltr = {
+            "ltd_rad__gte": ltd_range[0],
+            "ltd_rad__lte": ltd_range[1],
+            "lng_rad__gte": lng_range[0],
+            "lng_rad__lte": lng_range[1],
+        }
+        points_aprxm_ids = self.values_list('id', flat=True).filter(**fltr)
+
+        points = self.filter(id__in=points_aprxm_ids).extra(
+            where=['acos(sin(%s) * sin(ltd_rad) + cos(%s) * cos(ltd_rad) * cos(lng_rad - (%s))) <= %s'],
+            params=[ltd_rad, ltd_rad, lng_rad, angular_radius]
+        )
+
+        return points
 
 
 class Station(models.Model):
-    action_radius = 50
+    action_radius = 30
 
-    longitude = models.FloatField(_('Longitude'))
-    latitude = models.FloatField(_('Latitude'))
+    lng_dgr = models.FloatField(_('Longitude in degrees'))
+    ltd_dgr = models.FloatField(_('Latitude in degrees'))
+    lng_rad = models.FloatField(_('Longitude in radians'))
+    ltd_rad = models.FloatField(_('Latitude in radians'))
 
     objects = StationManager()
 
@@ -36,3 +63,15 @@ class Station(models.Model):
 
     def __unicode__(self):
         return u"{0}".format(self.id)
+
+    def save(self, *args, **kwargs):
+        self.lng_rad = math.radians(self.lng_dgr)
+        self.ltd_rad = math.radians(self.ltd_dgr)
+        super(Station, self).save(*args, **kwargs)
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "lng_dgr": self.lng_dgr,
+            "ltd_dgr": self.ltd_dgr,
+        }

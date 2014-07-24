@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Clean and generate stations.'
 
     option_list = BaseCommand.option_list + (
-        make_option('-n', '--number', action="store", dest='number', default=50000),
+        make_option('-n', '--number', action="store", dest='number', default='50000'),
     )
 
     def handle(self, *args, **options):

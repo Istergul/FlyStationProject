@@ -46,6 +46,10 @@
             <div class="col-xs-6">
                 <p id="checkSuccess" class="bg-success" style="display:none;">Point located in the coverage area.</p>
                 <p id="checkError" class="bg-danger" style="display:none;">Point not located in the coverage area.</p>
+                <div id="lstStat" style="display:none;">
+                    <p>List of stations</p>
+                    <ul id="stationList"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -65,8 +69,8 @@
                         {% for s in stations.object_list %}
                             <tr>
                                 <td>{{ s.id }}</td>
-                                <td>{{ s.latitude }}</td>
-                                <td>{{ s.longitude }}</td>
+                                <td>{{ s.ltd_dgr }}</td>
+                                <td>{{ s.lng_dgr }}</td>
                             </tr>
                         {%  endfor %}
                     </tbody>
@@ -102,7 +106,7 @@
     </div>
 
     <script type="text/javascript" src="/static/vendor/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/dist/js/all.min.js"></script>
+    <script type="text/javascript" src="/static/src/scripts.js"></script>
 
 </body>
 </html>
